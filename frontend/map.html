@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
   <style>
-    /* ==================== 1. ПЕРЕМЕННЫЕ И СБРОС ==================== */
+    /* ==================== 1. ПЕРЕМЕННЫЕ (тёмная тема по умолчанию) ==================== */
     :root {
       --bg-dark: #0d1210;
       --bg-card: #141c18;
@@ -24,8 +24,32 @@
       --text-muted: #8c9ba5;
       --border-color: #23302a;
 
+      --tag-bg: rgba(255, 255, 255, 0.05);
+      --shadow-marker: rgba(37, 211, 102, 0.6);
+      --logo-color: #fff;
+
       --radius-sm: 8px;
       --radius-md: 14px;
+    }
+
+    /* Светлая тема */
+    [data-theme="light"] {
+      --bg-dark: #f4f7f6;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f0fdf4;
+      --bg-input: #ffffff;
+
+      --accent-green: #206746;
+      --accent-green-hover: #298259;
+      --accent-light: #16a34a;
+
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+
+      --tag-bg: rgba(0, 0, 0, 0.05);
+      --shadow-marker: rgba(22, 163, 74, 0.5);
+      --logo-color: #1e293b;
     }
 
     * {
@@ -47,6 +71,7 @@
       line-height: 1.5;
       display: flex;
       flex-direction: column;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
     .container {
@@ -63,6 +88,7 @@
       position: sticky;
       top: 0;
       z-index: 100;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
     }
 
     .header__container {
@@ -77,13 +103,15 @@
       align-items: center;
       gap: 10px;
       text-decoration: none;
-      color: #fff;
+      color: var(--logo-color);
       font-weight: 700;
       font-size: 1.2rem;
+      transition: color 0.3s ease;
     }
 
     .nav {
       display: flex;
+      align-items: center;
       gap: 24px;
     }
 
@@ -96,12 +124,32 @@
 
     .nav__link:hover,
     .nav__link.active {
-      color: #fff;
+      color: var(--text-main);
       border-bottom: 2px solid var(--accent-light);
       padding-bottom: 4px;
     }
 
-    /* ==================== 3. СТРАНИЦА КАРТЫ ==================== */
+    /* Кнопка переключения темы */
+    .theme-toggle {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-main);
+      transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
+    }
+
+    .theme-toggle:hover {
+      background-color: var(--bg-card-hover);
+      transform: scale(1.05);
+    }
+
+    /* ==================== 3. КАРТА ==================== */
     .main-layout {
       display: flex;
       flex: 1;
@@ -109,7 +157,6 @@
       overflow: hidden;
     }
 
-    /* Сайдбар */
     #sidebar {
       width: 360px;
       background-color: var(--bg-card);
@@ -117,11 +164,13 @@
       display: flex;
       flex-direction: column;
       z-index: 10;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
     }
 
     .search-box {
       padding: 14px;
       border-bottom: 1px solid var(--border-color);
+      transition: border-color 0.3s ease;
     }
 
     .search-box input {
@@ -130,9 +179,10 @@
       background-color: var(--bg-input);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
-      color: #fff;
+      color: var(--text-main);
       font-size: 0.9rem;
       outline: none;
+      transition: border-color 0.2s, background-color 0.3s ease, color 0.3s ease;
     }
 
     .search-box input:focus {
@@ -145,6 +195,7 @@
       flex-wrap: wrap;
       gap: 6px;
       border-bottom: 1px solid var(--border-color);
+      transition: border-color 0.3s ease;
     }
 
     .filters button {
@@ -160,7 +211,7 @@
 
     .filters button:hover {
       border-color: var(--accent-light);
-      color: #fff;
+      color: var(--text-main);
     }
 
     .filters button.active {
@@ -174,6 +225,7 @@
       display: flex;
       gap: 8px;
       border-bottom: 1px solid var(--border-color);
+      transition: border-color 0.3s ease;
     }
 
     .actions button {
@@ -220,7 +272,7 @@
       padding: 14px 18px;
       border-bottom: 1px solid var(--border-color);
       cursor: pointer;
-      transition: background-color 0.15s;
+      transition: background-color 0.15s, border-color 0.3s ease;
     }
 
     .point-card:hover {
@@ -235,7 +287,7 @@
     .point-name {
       font-size: 0.95rem;
       font-weight: 600;
-      color: #fff;
+      color: var(--text-main);
       margin-bottom: 4px;
     }
 
@@ -259,7 +311,7 @@
 
     .point-tags span {
       padding: 2px 6px;
-      background-color: rgba(255, 255, 255, 0.05);
+      background-color: var(--tag-bg);
       color: var(--accent-light);
       border-radius: 4px;
       font-size: 0.7rem;
@@ -270,6 +322,7 @@
       flex: 1;
       height: 100%;
       background-color: var(--bg-dark);
+      transition: background-color 0.3s ease;
     }
 
     /* Popup Leaflet */
@@ -278,16 +331,22 @@
       color: var(--text-main);
       border-radius: var(--radius-sm);
       border: 1px solid var(--border-color);
+      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
     }
 
     .leaflet-popup-tip {
       background-color: var(--bg-card);
+      transition: background-color 0.3s ease;
+    }
+
+    .leaflet-popup-close-button {
+      color: var(--text-muted) !important;
     }
 
     .popup-title {
       font-size: 0.95rem;
       font-weight: bold;
-      color: #fff;
+      color: var(--text-main);
       margin-bottom: 4px;
     }
 
@@ -318,7 +377,7 @@
 
     .popup-tags span {
       padding: 2px 6px;
-      background-color: rgba(255, 255, 255, 0.05);
+      background-color: var(--tag-bg);
       color: var(--accent-light);
       border-radius: 3px;
       font-size: 0.7rem;
@@ -340,10 +399,31 @@
       width: 18px;
       height: 18px;
       background-color: var(--accent-light);
-      border: 2px solid var(--bg-dark);
+      border: 2px solid var(--bg-card);
       border-radius: 50%;
-      box-shadow: 0 0 8px rgba(37, 211, 102, 0.6);
+      box-shadow: 0 0 8px var(--shadow-marker);
       cursor: pointer;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    /* ==================== 4. ТЁМНЫЙ ВИД ТАЙЛОВ ==================== */
+    /* Тайлы всегда светлые (openstreetmap.fr), но в тёмной теме их инвертируем */
+    [data-theme="dark"] .leaflet-tile-pane {
+      filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9);
+    }
+
+    @media (max-width: 800px) {
+      #sidebar {
+        width: 280px;
+      }
+
+      .nav {
+        gap: 12px;
+      }
+
+      .nav__link {
+        font-size: 0.85rem;
+      }
     }
   </style>
 </head>
@@ -355,9 +435,10 @@
     <div class="container header__container">
       <a href="index.html" class="logo">♻ ЭкоГомель</a>
       <nav class="nav">
-        <a href="index.html" class="nav__link">Поиск</a>
+        <a href="index.html" class="nav__link">Главная</a>
         <a href="map.html" class="nav__link active">Карта</a>
         <a href="about_project.html" class="nav__link">О проекте</a>
+        <button id="theme-toggle" class="theme-toggle" aria-label="Переключить тему">🌙</button>
       </nav>
     </div>
   </header>
@@ -393,6 +474,37 @@
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
+  <!-- ============ ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ (self-contained) ============ -->
+  <script>
+    (function () {
+      const btn = document.getElementById('theme-toggle');
+      const saved = localStorage.getItem('theme') || 'dark';
+
+      // Начальная тема
+      if (saved === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+        btn.textContent = '☀️';
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        btn.textContent = '🌙';
+      }
+
+      // Переключение
+      btn.addEventListener('click', () => {
+        const cur = document.documentElement.getAttribute('data-theme');
+        if (cur === 'light') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+          localStorage.setItem('theme', 'dark');
+          btn.textContent = '🌙';
+        } else {
+          document.documentElement.setAttribute('data-theme', 'light');
+          localStorage.setItem('theme', 'light');
+          btn.textContent = '☀️';
+        }
+      });
+    })();
+  </script>
+
   <script>
     /* ============================================================
        1. НАЧАЛЬНЫЕ ДАННЫЕ (18 точек Гомеля)
@@ -419,14 +531,14 @@
     ];
 
     /* ============================================================
-       2. КОНФИГУРАЦИЯ (для будущего API)
+       2. КОНФИГУРАЦИЯ
        ============================================================ */
-    const DATA_SOURCE = 'local';                                 // 'local' | 'api'
+    const DATA_SOURCE = 'local';
     const API_URL = 'http://localhost:8000/api/v1/points';
     const LS_KEY = 'ecogomel_points';
 
     /* ============================================================
-       3. РАБОТА С ДАННЫМИ (заглушка API)
+       3. РАБОТА С ДАННЫМИ
        ============================================================ */
     async function getPoints() {
       if (DATA_SOURCE === 'api') {
@@ -473,7 +585,7 @@
     let addMode = false;
 
     /* ============================================================
-       5. КАРТА
+       5. КАРТА (рабочий тайл-сервер)
        ============================================================ */
     const map = L.map('map', { zoomControl: false })
       .setView([52.4345, 30.9754], 12);
@@ -665,7 +777,7 @@
           .forEach(b => b.classList.remove('active'));
 
         btn.classList.add('active');
-        activeFilter = btn.dataset.filter;      // ← у них data-filter
+        activeFilter = btn.dataset.filter;
         renderList();
       });
     });
